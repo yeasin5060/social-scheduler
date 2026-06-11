@@ -1,11 +1,23 @@
-import { ActivityIcon, CheckCircleIcon, ClockIcon, Share2Icon, TrendingUpIcon } from "lucide-react";
-import { useState } from "react"
+import { ActivityIcon, CheckCircleIcon, ClockIcon, SendIcon, Share2Icon, TrendingUpIcon } from "lucide-react";
+import { useEffect, useState } from "react"
+import { dummyAccountsData, dummyActivityData, dummyPostsData } from "../../assets/assets";
 
 
 const Dashboard = () => {
 
   const [stats, setStats] = useState({scheduled: 0 , published : 0 , connectedAccounts : 0});
   const [activites , setActivites] = useState<any[]> ([]);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const [postsRes, accountsRes, activityRes] = [{data : dummyPostsData}, {data : dummyAccountsData} , {data : dummyActivityData}]
+      } catch (error) {
+        
+      }
+    }
+    fetchDashboardData()
+  },[])
 
   const statCards = [
     {
@@ -59,13 +71,30 @@ const Dashboard = () => {
         </div>
         {activites.length === 0 ?
         (
-          <div>
-            <div>
+          <div className="flex flex-col items-center justify-center py-16 px-6">
+            <div className = 'size-12 bg-slate-200 rounded-xl flex items-center justify-center mb-3'>
               <ActivityIcon className="size-6 text-slate-400"/>
             </div>
+            <p className="text-slate-500">No activity yet</p>
+            <p className="text-slate-400 text-sm mt-1">Connect accounts schedule posts to see events here</p>
           </div>
         ) : (
-          <div></div>
+          <div className="divide-y divide-slate-200">
+            {activites.map((activite) => (
+              <div key={activite._id} className="flex items-start py-4 px-6 hover:bg-slate-50/50 transition-colors">
+                <div className="size-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 bg-zinc-100 text-zinc-600">
+                  <SendIcon className="size-4"/>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-center gap-2 mb-1">
+                    <span className="text-xs rounded-full px-2 py-0.5 bg-zinc-100 text-zinc-600 capitalize">published</span>
+                    <span className="text-xs text-slate-400 shrink-0">{new Date(activite.createdAt).toLocaleString()}</span>
+                  </div>
+                </div>
+                <p className="text-sm text-stone-600">{activite.description}</p>
+              </div>
+            ))}
+          </div>
         )
       }
       </div>
