@@ -88,17 +88,17 @@ const Dashboard = () => {
         ) : (
           <div className="divide-y divide-slate-200">
             {activites.map((activite) => (
-              <div key={activite._id} className="flex items-start py-4 px-6 hover:bg-slate-50/50 transition-colors">
+              <div key={activite._id} className="flex items-start gap-4 py-4 px-6 hover:bg-slate-50/50 transition-colors">
                 <div className="size-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 bg-zinc-100 text-zinc-600">
                   <SendIcon className="size-4"/>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-center gap-2 mb-1">
+                  <div className="flex items-center justify-between gap-2 mb-1">
                     <span className="text-xs rounded-full px-2 py-0.5 bg-zinc-100 text-zinc-600 capitalize">published</span>
                     <span className="text-xs text-slate-400 shrink-0">{new Date(activite.createdAt).toLocaleString()}</span>
                   </div>
+                  <p className="text-sm text-stone-600">{activite.description}</p>
                 </div>
-                <p className="text-sm text-stone-600">{activite.description}</p>
               </div>
             ))}
           </div>
