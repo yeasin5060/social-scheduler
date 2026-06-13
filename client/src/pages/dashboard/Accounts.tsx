@@ -1,12 +1,17 @@
 import { useState } from "react"
 import { PLATFORMS } from "../../assets/assets";
 import { PlusIcon } from "lucide-react";
+import AccountList from "../../components/AccountList";
 
 
 const Accounts = () => {
   const [accounts , setAccountes] = useState<any[]>([]);
   const [connection , setConnection] = useState<string | null> (null);
   const [showPlatformPicker,setShowPlatformPicker] = useState(false);
+
+  const handleDisconnect = async (accountId : string) => {
+
+  }
   return (
     <div className="space-y-8 max-w-4xl">
       {/* Header */}
@@ -19,6 +24,8 @@ const Accounts = () => {
           <PlusIcon/> Connect Account
         </button>
       </div>
+      {/* connected accounts list */}
+      <AccountList accounts={accounts} onDisconnect={handleDisconnect}/>
     </div>
   )
 }
