@@ -12,8 +12,15 @@ const Dashboard = () => {
     const fetchDashboardData = async () => {
       try {
         const [postsRes, accountsRes, activityRes] = [{data : dummyPostsData}, {data : dummyAccountsData} , {data : dummyActivityData}]
-      } catch (error) {
-        
+        const posts = postsRes.data;
+        setStats ({
+          scheduled : posts.filter((p: any) => p.status === 'scheduled').length,
+          published : posts.filter((p: any) => p.status === 'published').length,
+          connectedAccounts : accountsRes.data.filter((a: any) => a.status === 'connected').length
+        });
+        setActivites (activityRes.data);
+      } catch (error: any) {
+        console.error('Error fetching dashboard data', error);
       }
     }
     fetchDashboardData()
