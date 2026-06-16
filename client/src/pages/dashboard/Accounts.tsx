@@ -17,6 +17,20 @@ const Accounts = () => {
   useEffect(() => {
     fetchAccounts()
   },[]);
+
+  const handleConnect = async (platformId : string) => {
+    try {
+      setConnection(platformId);
+      setTimeout (() => {
+        setConnection(null);
+        setAccountes((prev) => [...prev, dummyAccountsData[0]]);
+        setShowPlatformPicker(false);
+      },1000)
+    } catch (error) {
+      
+    }
+  }
+
   const handleDisconnect = async (accountId : string) => {
     setAccountes(accounts.filter((a) => a.id !== accountId));
   }
