@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { dummyPostsData, PLATFORMS } from "../../assets/assets";
+import { XIcon } from "lucide-react";
 
 
 const Scheduler = () => {
@@ -68,7 +69,29 @@ const Scheduler = () => {
                 </div>
             </div>
             {/* --- media upload --- */}
-
+            <div>
+              <label className="block text-xs text-slate-500 uppercase mb-2">media (optional)</label>
+              {mediaFile ? 
+              (
+              <div className="relative rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
+                {mediaFile.type.startsWith('image/') 
+                ? 
+                <img src={URL.createObjectURL(mediaFile)} alt="preview" className="w-full h-40 object-cover"/> 
+                : 
+                <video src={URL.createObjectURL(mediaFile)} className="w-full h-40 object-cover" controls />}
+                <button type="button" onClick = {()=> setMediaFile(null)} className="absolute top-2 right-2 bg-slate-900/60 hover:bg-slate-900/80 text-white rounded-full flex items-center justify-center transition-colors">
+                  <XIcon className="size-3.5"/>
+                </button>
+              </div>
+              )
+              :
+              (
+                <label className="flex items-center justify-center gap-2 p-5 py-10 border border-dashed border-slate-200 rounded-xl cursor-pointer hover:border-red-300 hover:bg-red-50/30 transition-all group">
+                  <span className="text-sm text-slate-500 group-hover:text-red-600 transition-colors">Click to upload image or video</span>
+                  <input type="file" accept="image/*,video/*" className="hidden" onChange={(e)=> e.target.files?.[0] && setMediaFile(e.target.files[0])} />
+                </label>
+              )}
+            </div>
             {/* --- Date and Time --- */}
 
             {/* --- submit --- */}
