@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { dummyPostsData, PLATFORMS } from "../../assets/assets";
-import { ArrowRightIcon, CalendarDaysIcon, CalendarIcon, ClockIcon, XIcon } from "lucide-react";
+import { ArrowRightIcon, CalendarDaysIcon, CalendarIcon, ClockIcon, SendIcon, XIcon } from "lucide-react";
 
 
 const Scheduler = () => {
@@ -161,14 +161,48 @@ const Scheduler = () => {
                         <span className="text-xs text-slate-400">{new Date(post.scheduledFor).toLocaleString()}</span>
                       </div>
                     </div>
-                    <p className="text-sm text-slate-500 line-clamp-2 max-w-md">{post.content}</p>
+                    <p className="text-sm text-slate-500 line-clamp-2 max-w-md mb-12">{post.content}</p>
                   </div>
                 ))
               )}
           </div>
         </div>
-
          {/* --- Published --- */}
+        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+          <div className="flex items-center px-5 py-4 gap-2.5 border-b border-slate-100">
+              <SendIcon className="size-4 text-zinc-500"/>
+              <h3 className="text-slate-900 text-sm capitalize">published</h3>
+              <span className="ml-auto text-xs font-bold bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded-full">
+                {published.length}
+              </span>
+          </div>
+          <div className="max-h-72 overflow-y-auto divide-y divide-slate-50">
+              {published.length === 0 ?
+              (
+                <div className="py-10 text-center text-slate-400 text-sm">No Published posts yet</div>
+              ) : 
+              (
+                published.map((post)=> (
+                  <div key={post._id} className="px-5 py-4 hover:bg-slate-50/60 transition-colors">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-1.5">
+                        {post.platforms.map((pl:string) => {
+                          const meta = PLATFORMS.find((p)=> p.id === pl);
+                          return meta ? <meta.icon key={pl} className = "size-3.5 text-slate-400"/> : null
+                        })}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {post.mediaType && <span className="text-xs bg-slate-100 text-slate-600 border border-slate-200 px-1.5 py-0.5 rounded-md font-semibold capitalize">{post.mediaType}</span> }
+                        <span className="text-xs text-slate-400">{new Date(post.updatedAt).toLocaleString()}</span>
+                        <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-0.5 rounded-full capitalize" >published</span>
+                      </div>
+                    </div>
+                    <p className="text-sm text-slate-500 line-clamp-2 max-w-4/5">{post.content}</p>
+                  </div>
+                ))
+              )}
+          </div>
+        </div>
       </div>
     </div>
   )
