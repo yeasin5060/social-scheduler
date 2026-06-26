@@ -65,7 +65,15 @@ const AIComposer = () => {
               </button>
             </div>
         </div>
+        <div className="flex flex-wrap justify-center gap-2">
+          {tones.map((t)=> (
+            <button key={t} onClick={()=> setTone(t)} className={`px-4 py-1.5 rounded-full text-sm transition-all border ${tone === t ? "bg-red-500 border-red-500 text-white" : "bg-white border-slate-200 text-slate-500 hover:border-slate-300"}`}>
+              {t}
+            </button>
+          ))}
+        </div>
       </div>
+      {/* AI generated post */}
     </div>
   )
 }
