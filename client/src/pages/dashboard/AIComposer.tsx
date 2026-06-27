@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
-import { dummyGenerationData } from "../../assets/assets";
-import { ArrowRightIcon, Loader2Icon } from "lucide-react";
+import { dummyGenerationData, PLATFORMS } from "../../assets/assets";
+import { ArrowRightIcon, HistoryIcon, Loader2Icon, Wand2Icon, XIcon } from "lucide-react";
 
 
 const AIComposer = () => {
@@ -74,6 +74,90 @@ const AIComposer = () => {
         </div>
       </div>
       {/* AI generated post */}
+      <div className="space-y-6 pt-12 border-t border-slate-100">
+        <div className="flex items-center justify-between text-slate-600">
+          <div className="flex items-center gap-2">
+            <HistoryIcon className="size-4"/>
+            <h2 className="text-xl capitalize">Recent Generations</h2>
+          </div>
+          <span className="text-sm text-slate-500 bg-slate-50 px-2">{generations.length} total</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {generations.map((gen)=> (
+            <div key={gen._id} className="group bg-white rounded-2xl border border-slate-100 p-5 hover:border-red-200 transition-all relative overflow-hidden">
+              <div className="flex flex-col h-full space-y-4">
+                <div className="flex items-center justify-center">
+                  <span className="text-xs text-slate-400 uppercase tracking-widest">{new Date(gen.createdAt).toLocaleString()}</span>
+                  <span className="text-xs text-red-500 bg-red-50 px-2 py-0.5 rounded-md">{gen.tone}</span>
+                </div>
+                <p className="text-sm text-slate-600 line-clamp-3 leading-relaxed flex-1">{gen.content}</p>
+                {gen.mediaUrl && (
+                  <div className="rounded-xl overflow-hidden border border-slate-50 bg-slate-50">
+                    <img className="w-full aspect-video object-cover opacity-90 hover:opacity-100 transition-opacity" src={gen.mediaUrl} alt="gen" />
+                  </div>
+                )}
+                <div className="flex items-center gap-2 pt-2">
+                  <button className="flex-1 bg-slate-100 hover:bg-red-500 hover:text-white text-slate-600 text-xs py-2.5 rounded-lg transition-all capitalize" onClick={()=> setActiveScheduler(gen)}>
+                    schedule post
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+          {
+            generations.length === 0 && (
+              <div className="col-span-full py-20 text-center space-y-2">
+                <div className="size-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300 mx-auto">
+                  <Wand2Icon className="size-6"/>
+                </div>
+                <p className="text-slate-400 text-sm">No content generate yet. Try generating some content using the AI.</p>
+              </div>
+            )
+          }
+        </div>
+      </div>
+      {/* scheduler model */}
+      {activeScheduler && (
+        <div className="fixed inset-0 min-h-screen z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="flex items-center justify-between px-8 py-4 border-b border-slate-100 bg-slate-50/30">
+              <h3 className="text-slate-900">schedule generation</h3>
+              <button className="p-2 rounded-full hover:bg-slate-100 text-slate-400 transition-colors" onClick={()=> setActiveScheduler(null)}>
+                <XIcon className="size-5"/>
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-8 space-y-4">
+              <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 space-y-4">
+                <p className="text-slate-800 text-sm leading-relaxed whitespace-pre-wrap">{activeScheduler.prompt}</p>
+              </div>
+              <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 space-y-4">
+                <p className="text-slate-800 text-sm leading-relaxed whitespace-pre-wrap">{activeScheduler.content}</p>
+                {activeScheduler.mediaUrl && <img src={activeScheduler.mediaUrl} alt="preview" className="w-full aspect-video object-cover border border-slate-200 rounded-xl shadow-sm"/>}
+              </div>
+            </div>
+            <div className="p-8 bg-slate-50/50 border-t border-slate-50 space-y-8">
+              {/* options */}
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-xs text-slate-600 uppercase tracking-widest">select channels</label>
+                  <div className="flex flex-wrap gap-2">
+                    {
+                      PLATFORMS.map((p)=> {
+                        const active = selectedPlatforms.includes(p.id);
+                        return (
+                          <button className={`p-2.5 rounded-md border text-xs ${active ? "bg-red-500/80 text-white" : "bg-white border-slate-200 text-slate-400"}`} key={p.id} onClick={()=>setSelectedPlatforms((prev)=>(prev.includes(p.id) ? prev.filter((x)=> x !== p.id) : [...prev,p.id]))}>
+                            <p.icon className = "size-4.5"/>
+                          </button>
+                        )
+                      })
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
