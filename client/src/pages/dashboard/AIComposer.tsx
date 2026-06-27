@@ -145,7 +145,7 @@ const AIComposer = () => {
                       PLATFORMS.map((p)=> {
                         const active = selectedPlatforms.includes(p.id);
                         return (
-                          <button>
+                          <button className={`p-2.5 rounded-md border text-xs ${active ? "bg-red-500/80 text-white" : "bg-white border-slate-200 text-slate-400"}`} key={p.id} onClick={()=>setSelectedPlatforms((prev)=>(prev.includes(p.id) ? prev.filter((x)=> x !== p.id) : [...prev,p.id]))}>
                             <p.icon className = "size-4.5"/>
                           </button>
                         )
