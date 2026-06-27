@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { dummyGenerationData, PLATFORMS } from "../../assets/assets";
-import { ArrowRightIcon, HistoryIcon, Loader2Icon, Wand2Icon, XIcon } from "lucide-react";
+import { ArrowRightIcon, CalendarIcon, ClockIcon, HistoryIcon, Loader2Icon, TimerIcon, Wand2Icon, XIcon } from "lucide-react";
 
 
 const AIComposer = () => {
@@ -31,6 +31,13 @@ const AIComposer = () => {
     setLoading(true);
     setTimeout(()=>{
       setLoading(false)
+    },2000)
+  };
+
+  const handleSchedule = async () => {
+    setScheduling(true);
+    setTimeout(()=>{
+      setScheduling(false)
     },2000)
   }
   return (
@@ -153,7 +160,21 @@ const AIComposer = () => {
                     }
                   </div>
                 </div>
+                <div  className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="relative">
+                    <CalendarIcon className="size-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"/>
+                    <input type="date" className="w-full pl-11 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-md text-slate-900 text-sm focus:outline-none transition-all" value={scheduledDate} onChange={(e)=> setScheduledDate(e.target.value)}/>
+                  </div>
+                  <div className="relative">
+                    <ClockIcon className="size-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"/>
+                    <input type="time" className="w-full pl-11 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-md text-slate-900 text-sm focus:outline-none transition-all" value={scheduledTime} onChange={(e)=> setScheduledTime(e.target.value)}/>
+                  </div>
+                </div>
               </div>
+              <button className="w-full flex items-center justify-center gap-2 py-3 rounded-md bg-slate-200 text-slate-700 hover:bg-red-500 hover:text-white transition capitalize" onClick={handleSchedule}>
+                {scheduling ? <Loader2Icon className="size-4 animate-spin"/> : <TimerIcon className="size-4"/>}
+                schedule post
+              </button>
             </div>
           </div>
         </div>
