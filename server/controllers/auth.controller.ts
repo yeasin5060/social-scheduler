@@ -41,3 +41,27 @@ export const registerUser = async (req : Request , res : Response) : Promise<voi
         res.status(500).json({ message : error?.message || "Server Error" });
     }
 }
+
+// Login user
+//Post /api/auth/login
+
+export const loginUser = async (req : Request , res : Response) :Promise<void> => {
+    try {
+        const {email , password} = req.body;
+         if (![email, password].every((field) => field && field.trim())) {
+            res.status(400).json({ message : "All fields are required" });
+            return;
+        }
+
+        const user = await User.findOne({email});
+
+        if(user && (await bcrypt.compare(password,user.password))){
+            res.status(201).json({_id : user._id, name : user.name, email : user.email, token : generatedToken(user._id.toString()) });
+        }else {
+            res.status(400).json({ message : "Invalid email or password" });
+        }
+
+    } catch (error : any) {
+         res.status(500).json({ message : error?.message || "Server Error" });
+    }
+}
