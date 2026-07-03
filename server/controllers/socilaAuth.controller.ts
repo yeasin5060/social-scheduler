@@ -41,6 +41,30 @@ const getOrCreateZernioPrifile = async (user : any) : Promise <string> => {
 export const generateAuthUrl = async (req: Request , res: Response) : Promise <void> => {
     try {
         const {platform} = req.params;
+        const profileId = await getOrCreateZernioPrifile(req.user);
+
+        const orgin = req.headers.origin;
+        const redirectUrl = `${orgin}/accounts`;
+
+        const result = await zernio.connect.getConnectUrl({
+            path : {platform : platform as any},
+            query : {
+                profileId,
+                redirect_url : redirectUrl
+            }
+        });
+
+        const data = result.data as any;
+
+        console.log("getConnectUrl response:", JSON.stringify(data, null, 2));
+
+        const authUrl = data.authUrl;
+
+        if(!authUrl){
+            throw new Error (`Zernio returned no authUrl.Full response: ${JSON.stringify(data)}`);
+        }
+
+        res.json({url:authUrl})
     } catch (error : any) {
         res.status(500).json({ message : error?.message || "Server Error" });
     }
