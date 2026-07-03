@@ -62,6 +62,6 @@ export const loginUser = async (req : Request , res : Response) :Promise<void> =
         }
 
     } catch (error : any) {
-         res.status(500).json({ message : error?.message || "Server Error" });
+        res.status(500).json({ message : error?.message || "Server Error" });
     }
 }
