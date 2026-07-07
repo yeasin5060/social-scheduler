@@ -98,6 +98,7 @@ export const generatePost = async (req: AuthRequest , res : Response) : Promise 
                     }
                 );
                 const generationId = leoResponse.data.generate.generationId;
+                const tempUrl = await pollLeonardoJob(generationId , leonardokey)
             }
         }
     } catch (error) {
