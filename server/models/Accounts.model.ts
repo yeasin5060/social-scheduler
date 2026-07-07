@@ -12,7 +12,7 @@ const accountSchema = new mongoose.Schema({
         required : true
     },
     handle : {
-        tyrp : String,
+        type : String,
         required : true
     },
     zernioAccountId : {
