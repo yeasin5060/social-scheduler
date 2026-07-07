@@ -12,7 +12,7 @@ const generationSchema = new mongoose.Schema({
         required : true
     },
     content : {
-        tyrp : String,
+        type : String,
         required : true
     },
     mediaUrl : {
