@@ -2,6 +2,8 @@ import { Response } from "express";
 import { AuthRequest } from "../middlewares/auth.middleware.js";
 import { GoogleGenAI } from "@google/genai";
 import axios from "axios";
+import { cloudinary } from "../config/cloudinary.js";
+import { Generation } from "../models/Generation.model.js";
 
 //Helper to pll leonardo.ai
 
@@ -71,38 +73,58 @@ export const generatePost = async (req: AuthRequest , res : Response) : Promise 
 
         let mideaUrl = "";
         if(generateImage){
-            const leonardokey = process.env.LEONARDO_API_KRY;
-            if(leonardokey){
-                //Use Leonardo.AI for image generation
-                const leoResponse = await axios.post(
-                    'https://cloud.leonardo.ai/api/rest/v2/generations',
+            try {
+                const leonardokey = process.env.LEONARDO_API_KRY;
+                if(leonardokey){
+                    //Use Leonardo.AI for image generation
+                    const leoResponse = await axios.post(
+                        'https://cloud.leonardo.ai/api/rest/v2/generations',
 
-                    {
-                        "public": false,
-                        "model": "gpt-image-1.5",
-                        "parameters":{
-                            "quality": "LOW",
-                            "prompt": imageprompt,
-                            "quantity":1,
-                            "width": 1024,
-                            "height": 1024,
-                            "seed": 4294967295,
-                            "prompt_enhance": "OFF"
+                        {
+                            "public": false,
+                            "model": "gpt-image-1.5",
+                            "parameters":{
+                                "quality": "LOW",
+                                "prompt": imageprompt,
+                                "quantity":1,
+                                "width": 1024,
+                                "height": 1024,
+                                "seed": 4294967295,
+                                "prompt_enhance": "OFF"
+                            }
+                        },{
+                            headers : {
+                                accept : 'application/json',
+                                authorization : `Bearer ${leonardokey}`,
+                                'content-type' : 'application/json',
+                            }
                         }
-                    },{
-                        headers : {
-                            accept : 'application/json',
-                            authorization : `Bearer ${leonardokey}`,
-                            'content-type' : 'application/json',
-                        }
-                    }
-                );
-                const generationId = leoResponse.data.generate.generationId;
-                const tempUrl = await pollLeonardoJob(generationId , leonardokey)
+                    );
+                    const generationId = leoResponse.data.generate.generationId;
+                    const tempUrl = await pollLeonardoJob(generationId , leonardokey);
+                        //Upload to cloudinary for presistence
+                    const uploadResult = await cloudinary.uploader.upload(tempUrl , {
+                        folder : 'ai-generations'
+                    });
+                    mideaUrl = uploadResult.secure_url;
+                }
+            } catch (err : any) {
+                console.error('Image generation failed:',err);
             }
         }
-    } catch (error) {
-        
+
+        // save generation to db
+        const generation = await Generation.create({
+            user : req.user._id,
+            prompt,
+            content,
+            mediaUrl : mideaUrl,
+            mediaType : mideaUrl ? "image" : undefined,
+            tone
+        });
+        res.json(generation)
+    } catch (error:any) {
+        res.status(500).json({ message : error?.message || "Server Error" });
     }
 } 
 
