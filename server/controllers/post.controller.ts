@@ -132,7 +132,12 @@ export const generatePost = async (req: AuthRequest , res : Response) : Promise 
 //Get /api/posts/generations
 
 export const getGenerations = async (req: AuthRequest , res : Response) : Promise <void> => {
-    
+    try {
+        const generations = await Generation.find({user:req.user._id}).sort({createdAt:-1});
+        res.json(generations)
+    } catch (error:any) {
+        res.status(500).json({ message : error?.message || "Server Error" });
+    }
 } 
 
 // Get Posts
