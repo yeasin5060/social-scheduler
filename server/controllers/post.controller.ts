@@ -179,7 +179,7 @@ export const schedulePost = async (req : AuthRequest , res : Response) : Promise
                     if(error) reject(error);
                     else resolve(result)
                 });
-                stream.end(req.file!.buffer)
+                stream.end(req.file!.buffer);
             });
             mideaUrl = result.secure_url;
             mediaType = result.resource_type === "video" ? "video" : "image"
