@@ -4,6 +4,7 @@ import { GoogleGenAI } from "@google/genai";
 import axios from "axios";
 import { cloudinary } from "../config/cloudinary.js";
 import { Generation } from "../models/Generation.model.js";
+import { Post } from "../models/Post.model.js";
 
 //Helper to pll leonardo.ai
 
@@ -122,7 +123,7 @@ export const generatePost = async (req: AuthRequest , res : Response) : Promise 
             mediaType : mideaUrl ? "image" : undefined,
             tone
         });
-        res.json(generation)
+        res.json(generation);
     } catch (error:any) {
         res.status(500).json({ message : error?.message || "Server Error" });
     }
@@ -134,7 +135,7 @@ export const generatePost = async (req: AuthRequest , res : Response) : Promise 
 export const getGenerations = async (req: AuthRequest , res : Response) : Promise <void> => {
     try {
         const generations = await Generation.find({user:req.user._id}).sort({createdAt:-1});
-        res.json(generations)
+        res.json(generations);
     } catch (error:any) {
         res.status(500).json({ message : error?.message || "Server Error" });
     }
@@ -144,5 +145,10 @@ export const getGenerations = async (req: AuthRequest , res : Response) : Promis
 //Get /api/posts
 
 export const getPosts = async (req: AuthRequest , res : Response) : Promise <void> => {
-    
+    try {
+        const post = await Post.find({user:req.user._id});
+        res.json(post);
+    } catch (error:any) {
+        res.status(500).json({ message : error?.message || "Server Error" });
+    }
 } 
