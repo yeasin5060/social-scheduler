@@ -152,3 +152,50 @@ export const getPosts = async (req: AuthRequest , res : Response) : Promise <voi
         res.status(500).json({ message : error?.message || "Server Error" });
     }
 } 
+
+// schedule Posts
+//Post /api/posts
+
+export const schedulePost = async (req : AuthRequest , res : Response) : Promise <void> => {
+    try {
+        const {content , platforms, scheduleFor, status} = req.body;
+
+        //parse platforms if it comes as a stringified array from fromdata
+        let parsedPlatforms = platforms;
+        if(typeof platforms === "string"){
+            try {
+                parsedPlatforms = JSON.stringify(platforms);
+            } catch (err) {
+                parsedPlatforms = platforms.split(',')
+            }
+        }
+
+        let mideaUrl : string | undefined = req.body.mediaUrl;
+        let mediaType : 'image' | 'video' | undefined  = req.body.mediaType;
+
+        if(req.file){
+            const result = await new Promise<any>((resolve , reject)=>{
+                const stream = cloudinary.uploader.upload_stream({resource_type:'auto',folder : "social-scheduler"},(error, result)=> {
+                    if(error) reject(error);
+                    else resolve(result)
+                });
+                stream.end(req.file!.buffer)
+            });
+            mideaUrl = result.secure_url;
+            mediaType = result.resource_type === "video" ? "video" : "image"
+        }
+
+        const post = await Post.create({
+            user : req.user._id,
+            content,
+            platform : parsedPlatforms,
+            mediaUrl : mideaUrl,
+            mediaType,
+            scheduleFor,
+            status
+        });
+        res.status(201).json(post);
+    } catch (error: any) {
+        res.status(500).json({ message : error?.message || "Server Error" });
+    }
+}
