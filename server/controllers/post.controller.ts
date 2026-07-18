@@ -191,7 +191,7 @@ export const schedulePost = async (req : AuthRequest , res : Response) : Promise
         const post = await Post.create({
             user : req.user._id,
             content,
-            platform : parsedPlatforms,
+            platforms : parsedPlatforms,
             mediaUrl : mideaUrl,
             mediaType,
             scheduleFor,
