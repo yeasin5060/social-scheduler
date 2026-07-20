@@ -18,7 +18,7 @@ export default function Login() {
         e.preventDefault();
         setLoading(true);
         try {
-            const {data} = await api.post(`/api/auth ${loginState ? "login" : "register"}`, {name ,email , password});
+            const {data} = await api.post(`/api/auth/${loginState ? "login" : "register"}`, {name ,email , password});
             login(data , data.token);
             navigate ('/dashboard')
         } catch (error:any) {
