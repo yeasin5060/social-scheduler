@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { dummyAccountsData, PLATFORMS } from "../../assets/assets";
+import { PLATFORMS } from "../../assets/assets";
 import { PlusIcon } from "lucide-react";
 import AccountList from "../../components/AccountList";
 import PlatformPickerModal from "../../components/PlatformPickerModal";
@@ -52,20 +52,24 @@ const Accounts = () => {
   },[]);
 
   const handleConnect = async (platformId : string) => {
+    setConnection(platformId);
     try {
-      setConnection(platformId);
-      setTimeout (() => {
-        setConnection(null);
-        setAccountes((prev) => [...prev, dummyAccountsData[0]]);
-        setShowPlatformPicker(false);
-      },1000)
-    } catch (error) {
-      
+      const {data} = await api.get(`/api/oauth/${platformId}/url`);
+      window.location.href = data.url;
+    } catch (error : any) {
+      toast.error(error?.response?.data?.message || error.message || `Failed to connect ${platformId}`);
+      setConnection(null)
     }
   }
 
   const handleDisconnect = async (accountId : string) => {
-    setAccountes(accounts.filter((a) => a._id !== accountId));
+    try {
+      await api.delete(`/api/accounts/${accountId}`);
+      toast.success('Account desconnected');
+      fetchAccounts()
+    } catch (error : any) {
+      toast.error(error?.response?.data?.message || error.message || `Failed to desconnected account`);
+    }
   }
 
   const connectedIds = accounts.map((a) => a.platform);
