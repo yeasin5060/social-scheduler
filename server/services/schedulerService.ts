@@ -24,15 +24,15 @@ export const initScheduler = () => {
                         continue;
                     }
 
-                    const zernioPlatforms = accounts.map((acc)=> ({
-                        tform : acc.platform as any,
-                        accountsId : acc.zernioAccountId!
+                    const zernioPlatforms = accounts.map((acc) => ({
+                        platform: acc.platform as any,
+                        accountId: acc.zernioAccountId
                     }));
 
                     const payload = {
                         content : post.content,
                         publishNow : true,
-                        ...(post.mediaUrl ? {mediaItems : [{type : post.mediaType || "image", urt : post.mediaUrl}]} : {}),
+                        ...(post.mediaUrl ? {mediaItems : [{type : post.mediaType || "image", url : post.mediaUrl}]} : {}),
                         platforms : zernioPlatforms
                     }
 
@@ -44,7 +44,7 @@ export const initScheduler = () => {
 
                     const publishedPost = (response.data as any)?.post || response.data;
 
-                    if(publishedPost){
+                    if(!publishedPost){
                         throw new Error('Failed to get post object from Zernio response')
                     }
 
@@ -60,7 +60,7 @@ export const initScheduler = () => {
                         relatedPost : post._id
                     });
                 } catch (err:any) {
-                    console.log(`Failed to publish post ${post._id}:`,err?.respone?.data || err.message);
+                    console.log(`Failed to publish post ${post._id}:`,err?.response?.data || err.message);
                     post.status = 'failed';
                     await post.save();
                 }
