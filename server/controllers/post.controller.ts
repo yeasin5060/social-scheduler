@@ -167,13 +167,13 @@ export const schedulePost = async (req : AuthRequest , res : Response) : Promise
         let parsedPlatforms = platforms;
         if(typeof platforms === "string"){
             try {
-                parsedPlatforms = JSON.stringify(platforms);
+                parsedPlatforms = JSON.parse(platforms);
             } catch (err) {
-                parsedPlatforms = platforms.split(',')
+                parsedPlatforms = platforms.split(",").map((p) => p.trim());
             }
         }
 
-        let mideaUrl : string | undefined = req.body.mediaUrl;
+        let mediaUrl : string | undefined = req.body.mediaUrl;
         let mediaType : 'image' | 'video' | undefined  = req.body.mediaType;
 
         if(req.file){
@@ -184,7 +184,7 @@ export const schedulePost = async (req : AuthRequest , res : Response) : Promise
                 });
                 stream.end(req.file!.buffer);
             });
-            mideaUrl = result.secure_url;
+            mediaUrl = result.secure_url;
             mediaType = result.resource_type === "video" ? "video" : "image"
         }
 
@@ -192,13 +192,18 @@ export const schedulePost = async (req : AuthRequest , res : Response) : Promise
             user : req.user._id,
             content,
             platforms : parsedPlatforms,
-            mediaUrl : mideaUrl,
+            mediaUrl : mediaUrl,
             mediaType,
             scheduleFor,
-            status
+            status: status || "scheduled",
         });
         res.status(201).json(post);
     } catch (error: any) {
-        res.status(500).json({ message : error?.message || "Server Error" });
+         console.error(error);
+
+        res.status(500).json({
+            message: error.message,
+            stack: error.stack
+        });
     }
 }

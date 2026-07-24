@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
 import { dummyPostsData, PLATFORMS } from "../../assets/assets";
 import { ArrowRightIcon, CalendarDaysIcon, CalendarIcon, ClockIcon, SendIcon, XIcon } from "lucide-react";
+import api from "../../api/axios";
+import toast from "react-hot-toast";
 
 
 const Scheduler = () => {
@@ -14,12 +16,17 @@ const Scheduler = () => {
   const [loading , setLoading] = useState(false);
 
   const fetchPosts = async () => {
-    setPosts(dummyPostsData)
+    try {
+      const {data} = await api.get('/api/posts');
+      setPosts(data);
+    } catch (error : any) {
+      toast.error(error?.response?.data?.message || error.message);
+    }
   }
 
   useEffect(() => {
     (async ()=> await fetchPosts())();
-    const interval = setInterval(async ()=> await fetchPosts(),1000)
+    const interval = setInterval(async ()=> await fetchPosts(),10000)
     return () => clearInterval(interval);
   },[]);
 
@@ -30,11 +37,41 @@ const Scheduler = () => {
 
   const handleSchedule = async (e: React.FormEvent) => {
     e.preventDefault();
+    if(selectedPlatforms.length === 0) {
+      toast.error('Select al least one platform');
+      return;
+    }
+    if(!scheduledDate || !scheduledTime) {
+      toast.error('Select date and time');
+      return;
+    }
+    if(selectedPlatforms.includes('instagram') && !mediaFile) {
+      toast.error('Instagram requirs an video or image');
+      return;
+    }
+
+    const scheduledFor = new Date(`${scheduledDate}T${scheduledTime}`).toISOString();
+    const formdata = new FormData();
+    formdata.append('content', content);
+    formdata.append("scheduleFor", scheduledFor);
+    formdata.append('status','scheduled');
+    formdata.append('platforms', JSON.stringify(selectedPlatforms));
+    if(mediaFile) formdata.append('media' , mediaFile);
     setLoading(true);
-    setTimeout(()=> {
+    try {
+      await api.post('/api/posts', formdata, {headers : {"Content-Type" : "multipart/form-data"}});
+      toast.success("Post schediled!");
+      setContent('');
+      setScheduledDate('');
+      setScheduledTime('');
+      setSelectedPlatforms([]);
+      setMediaFile(null);
+      fetchPosts();
+    } catch (error : any) {
+      toast.error(error?.response?.data?.message || error.message);
+    } finally{
       setLoading(false);
-      setPosts((prve) => [...prve , dummyPostsData[0]]);
-    },1000)
+    }
   }
 
   return (
