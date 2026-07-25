@@ -35,10 +35,21 @@ const AIComposer = () => {
   const tones = ["Professional","Creative","Funny","Minilist","Excited"];
 
   const handleGenerate = async () => {
+    if(!prompt) {
+      toast.error('Please inter a prompt');
+      return;
+    }
     setLoading(true);
-    setTimeout(()=>{
-      setLoading(false)
-    },2000)
+    try {
+      const { data} = await api.post('/api/posts/generate' , {prompt , tone , generateImage});
+      setGenerations([data , ...generations]);
+      setActiveScheduler(data);
+      toast.success('Content Generated!');
+    } catch (error : any) {
+      toast.error(error?.response?.data?.message || error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSchedule = async () => {
