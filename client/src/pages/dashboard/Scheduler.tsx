@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { dummyPostsData, PLATFORMS } from "../../assets/assets";
+import { PLATFORMS } from "../../assets/assets";
 import { ArrowRightIcon, CalendarDaysIcon, CalendarIcon, ClockIcon, SendIcon, XIcon } from "lucide-react";
 import api from "../../api/axios";
 import toast from "react-hot-toast";
@@ -195,7 +195,7 @@ const Scheduler = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         {post.mediaType && <span className="text-xs bg-slate-100 text-slate-600 border border-slate-200 px-1.5 py-0.5 rounded-md font-semibold capitalize">{post.mediaType}</span> }
-                        <span className="text-xs text-slate-400">{new Date(post.scheduledFor).toLocaleString()}</span>
+                        <span className="text-xs text-slate-400">{new Date(post.scheduleFor).toLocaleString()}</span>
                       </div>
                     </div>
                     <p className="text-sm text-slate-500 line-clamp-2 max-w-md mb-12">{post.content}</p>
