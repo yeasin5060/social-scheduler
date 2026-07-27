@@ -56,29 +56,42 @@ export const generatePost = async (req: AuthRequest , res : Response) : Promise 
         const ai = new GoogleGenAI({apiKey});
 
         const textResponse = await ai.models.generateContent({
-            model: "gemini-3.5-flash",
+            model:"gemini-3.5-flash",
             contents : `Generate a social midea post based on this prompt: "${prompt}".Tone : ${tone}.Include relevant hashtag.
-            Format the response as JSON with "contant" and "imagePrompt" fields.
+            Format the response as JSON with "content" and "imagePrompt" fields.
             The "imagePrompt" should be a highly descriptive prompt for an image generator that complements post.`,
         });
 
         let content = "";
-        let imageprompt = prompt;
+        let imagePrompt = prompt;
+
+        const rawText = textResponse.text || "";
+
+        console.log("Gemini Response:");
+        console.log(rawText);
 
         try {
-            const rawText = textResponse.text || '';
-            const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-            const data = jsonMatch ? JSON.parse(jsonMatch[0]) : {content : rawText, imageprompt : prompt};
-            content = data.content;
-            imageprompt = data.imagePrompt;
-        } catch (e) {
-            content = textResponse.text || "";
+            const cleanText = rawText
+            .replace(/```json/g, "")
+            .replace(/```/g, "")
+            .trim();
+
+            const data = JSON.parse(cleanText);
+
+            content = data.content || "";
+            imagePrompt = data.imagePrompt || prompt;
+
+        } catch (err) {
+            console.error("JSON Parse Error:", err);
+
+            content = rawText;
+            imagePrompt = prompt;
         }
 
-        let mideaUrl = "";
+        let mediaUrl = "";
         if(generateImage){
             try {
-                const leonardokey = process.env.LEONARDO_API_KRY;
+                const leonardokey = process.env.LEONARDO_API_KEY;
                 if(leonardokey){
                     //Use Leonardo.AI for image generation
                     const leoResponse = await axios.post(
@@ -86,10 +99,10 @@ export const generatePost = async (req: AuthRequest , res : Response) : Promise 
 
                         {
                             "public": false,
-                            "model": "gpt-image-1.5",
+                            "model": "gpt-image-2",
                             "parameters":{
                                 "quality": "LOW",
-                                "prompt": imageprompt,
+                                "prompt": imagePrompt,
                                 "quantity":1,
                                 "width": 1024,
                                 "height": 1024,
@@ -110,7 +123,7 @@ export const generatePost = async (req: AuthRequest , res : Response) : Promise 
                     const uploadResult = await cloudinary.uploader.upload(tempUrl , {
                         folder : 'ai-generations'
                     });
-                    mideaUrl = uploadResult.secure_url;
+                    mediaUrl = uploadResult.secure_url;
                 }
             } catch (err : any) {
                 console.error('Image generation failed:',err);
@@ -122,8 +135,8 @@ export const generatePost = async (req: AuthRequest , res : Response) : Promise 
             user : req.user._id,
             prompt,
             content,
-            mediaUrl : mideaUrl,
-            mediaType : mideaUrl ? "image" : undefined,
+            mediaUrl : mediaUrl,
+            mediaType : mediaUrl ? "image" : undefined,
             tone
         });
         res.json(generation);
