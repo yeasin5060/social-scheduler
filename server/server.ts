@@ -10,6 +10,10 @@ import activityRouter from "./routes/activityRoute.js";
 import { initScheduler } from "./services/schedulerService.js";
 
 const app = express();
+app.use((req, res, next) => {
+  console.log("REQUEST:", req.method, req.originalUrl);
+  next();
+});
 
 //Database connection
 await connectDB()
@@ -17,6 +21,7 @@ await connectDB()
 // Middleware
 app.use(cors())
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const port = process.env.PORT || 3000;
 

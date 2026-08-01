@@ -7,7 +7,24 @@ const postRouter = express.Router();
 
 postRouter.get('/', protect, getPosts);
 postRouter.get ('/generations', protect,getGenerations);
-postRouter.post ('/', protect, upload.single('media'), schedulePost);
+postRouter.post(
+  "/",
+  (req, res, next) => {
+    console.log("1. Route hit");
+    next();
+  },
+  protect,
+  (req, res, next) => {
+    console.log("2. After protect");
+    next();
+  },
+  upload.single("media"),
+  (req, res, next) => {
+    console.log("3. After multer");
+    next();
+  },
+  schedulePost
+);
 postRouter.post ('/generate', protect,generatePost);
 
 export default postRouter
