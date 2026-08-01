@@ -175,7 +175,7 @@ export const getPosts = async (req: AuthRequest , res : Response) : Promise <voi
 export const schedulePost = async (req : AuthRequest , res : Response) : Promise <void> => {
     try {
         const {content , platforms, scheduleFor, status} = req.body;
-
+    
         //parse platforms if it comes as a stringified array from fromdata
         let parsedPlatforms = platforms;
         if(typeof platforms === "string"){
@@ -189,18 +189,52 @@ export const schedulePost = async (req : AuthRequest , res : Response) : Promise
         let mediaUrl : string | undefined = req.body.mediaUrl;
         let mediaType : 'image' | 'video' | undefined  = req.body.mediaType;
 
-        if(req.file){
-            const result = await new Promise<any>((resolve , reject)=>{
-                const stream = cloudinary.uploader.upload_stream({resource_type:'auto',folder : "social-scheduler"},(error, result)=> {
-                    if(error) reject(error);
-                    else resolve(result)
-                });
-                stream.end(req.file!.buffer);
-            });
-            mediaUrl = result.secure_url;
-            mediaType = result.resource_type === "video" ? "video" : "image"
-        }
+        console.log("===== REQUEST =====");
+        console.log("User:", req.user);
+        console.log("Body:", req.body);
+        console.log("File:", req.file);
 
+
+        if (req.file) {
+            try {
+                console.log("Uploading file to Cloudinary...");
+                console.log("Original Name:", req.file.originalname);
+                console.log("Mime Type:", req.file.mimetype);
+                console.log("Size:", req.file.size);
+
+
+                const result = await new Promise<any>((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    {
+                    resource_type: "auto",
+                    folder: "social-scheduler",
+                    },
+                    (error, result) => {
+                    if (error) {
+                        console.error("Cloudinary Error:", error);
+                        return reject(error);
+                    }
+                    resolve(result);
+                    }
+                );
+
+                stream.end(req.file!.buffer);
+                });
+
+                console.log("Cloudinary Upload Success:", result);
+
+                mediaUrl = result.secure_url;
+                mediaType = result.resource_type === "video" ? "video" : "image";
+            } catch (err: any) {
+                console.log("========== FULL ERROR ==========");
+                console.dir(err, { depth: null });
+
+                console.log("Constructor:", err.constructor?.name);
+                console.log("Stack:", err.stack);
+
+                throw err;
+            }       
+        }
         const post = await Post.create({
             user : req.user._id,
             content,

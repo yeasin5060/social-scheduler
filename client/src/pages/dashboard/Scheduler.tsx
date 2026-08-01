@@ -4,7 +4,6 @@ import { ArrowRightIcon, CalendarDaysIcon, CalendarIcon, ClockIcon, SendIcon, XI
 import api from "../../api/axios";
 import toast from "react-hot-toast";
 
-
 const Scheduler = () => {
 
   const [posts , setPosts] = useState<any[]>([]);
