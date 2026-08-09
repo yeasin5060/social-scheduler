@@ -52,39 +52,60 @@ const AIComposer = () => {
     }
   };
 
-  const handleSchedule = async () => {
-    if(!activeScheduler) return;
-    if(selectedPlatforms.length === 0) {
-      toast.error('Select al least one platform');
-      return;
-    }
-    if(!scheduledDate || !scheduledTime) {
-      toast.error('Select date and time');
-      return;
-    }
+ const handleSchedule = async () => {
+  if (!activeScheduler) return;
 
-    const scheduledFor = new Date(`${scheduledDate}T${scheduledTime}`).toISOString();
-    setScheduling(true);
-     try {
-      await api.post('/api/posts',{
-        content : activeScheduler.content,
-        mediaUrl : activeScheduler.mediaUrl,
-        mediaType : activeScheduler.mediaType,
-        platforms : selectedPlatforms,
-        scheduledFor,
-        status : 'scheduled'
-      });
-      toast.success("Post schediled!");
-      setActiveScheduler(null);
-      setSelectedPlatforms([]);
-      setScheduledDate('');
-      setScheduledTime('');
-    } catch (error : any) {
-      toast.error(error?.response?.data?.message || error.message);
-    } finally{
-      setScheduling(false);
-    }
+  if (selectedPlatforms.length === 0) {
+    toast.error("Select at least one platform");
+    return;
   }
+
+  if (!scheduledDate || !scheduledTime) {
+    toast.error("Select date and time");
+    return;
+  }
+
+  const scheduledFor = new Date(
+    `${scheduledDate}T${scheduledTime}`
+  );
+
+  if (isNaN(scheduledFor.getTime())) {
+    toast.error("Invalid date or time");
+    return;
+  }
+
+  setScheduling(true);
+
+  try {
+    await api.post("/api/posts", {
+      content: activeScheduler.content,
+      mediaUrl: activeScheduler.mediaUrl,
+      mediaType: activeScheduler.mediaType,
+      platforms: selectedPlatforms,
+
+      // IMPORTANT
+      scheduleFor: scheduledFor.toISOString(),
+
+      status: "scheduled",
+    });
+
+    toast.success("Post scheduled!");
+
+    setActiveScheduler(null);
+    setSelectedPlatforms([]);
+    setScheduledDate("");
+    setScheduledTime("");
+
+  } catch (error: any) {
+    console.error("Schedule Error:", error);
+
+    toast.error(
+      error?.response?.data?.message || error.message
+    );
+  } finally {
+    setScheduling(false);
+  }
+};
   return (
     <div className="max-w-4xl mx-auto space-y-12 pb-20 animate-in fade-in duration-700">
       {/* input section */}
