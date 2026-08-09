@@ -7,6 +7,6 @@ const accountRouter = Router();
 
 accountRouter.get('/' , protect, getAccounts);
 accountRouter.post('/' , protect, addAccount);
-accountRouter.get('/:id' , protect, disconnectedAccount);
+accountRouter.delete('/:id' , protect, disconnectedAccount);
 
 export default accountRouter;
